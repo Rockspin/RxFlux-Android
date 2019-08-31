@@ -52,3 +52,5 @@ dependencies {
     implementation "com.uber.autodispose:autodispose-android:$autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$autoDisposeVersion"
 }
+
+apply from: rootProject.file('release-bintray.gradle')

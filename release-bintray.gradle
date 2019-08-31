@@ -1,0 +1,34 @@
+/**
+ * Bintray release configuration
+ * */
+ext {
+    bintrayRepo = 'maven'
+    bintrayRepo = 'maven'
+    bintrayName = POM_BINTRAY_NAME
+
+    publishedGroupId = 'com.rockspin.rxflux'
+    libraryName = 'RxFlux'
+    artifact = POM_ARTIFACT_ID
+    packagingType = POM_PACKAGING
+
+    libraryDescription = POM_DESCRIPTION
+
+    siteUrl = 'https://github.com/rockspin/RxFlux-Android'
+    gitUrl = 'https://github.com/rockspin/RxFlux-Android.git'
+
+    libraryVersion = POM_VERSION
+
+    developerId = 'rorykelly'
+    developerName = 'Rory Kelly'
+    developerEmail = 'rory@rockspin.co.uk'
+
+    licenseName = 'Apache-2.0'
+    licenseUrl = 'https://github.com/rockspin/RxFlux-Android/LICENSE'
+    allLicenses = ["Apache-2.0"]
+}
+
+// Set up the Android Maven publication.
+apply from: rootProject.file('jcenter/maven-install.gradle')
+
+// Publish on Bintray.
+apply from: rootProject.file('jcenter/bintray.gradle')

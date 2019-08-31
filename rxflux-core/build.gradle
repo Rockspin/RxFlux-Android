@@ -39,3 +39,5 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+
+apply from: rootProject.file('release-bintray.gradle')

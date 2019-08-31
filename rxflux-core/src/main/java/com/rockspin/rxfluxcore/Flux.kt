@@ -4,7 +4,6 @@ import com.jakewharton.rx.replayingShare
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.*
 import io.reactivex.rxkotlin.merge
-import io.reactivex.schedulers.Schedulers
 
 /**
  * Current state of an object. for example the state of a view or the state of a hardware device.
