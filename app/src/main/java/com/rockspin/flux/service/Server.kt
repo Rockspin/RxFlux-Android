@@ -17,6 +17,10 @@ class Server {
         return Single.just(User(id = userId, name = "Rory")).delay(3, TimeUnit.SECONDS)
     }
 
+    fun login(email: String, password: String): Single<User> {
+        return Single.just(User(id = "userId", name = "Rory")).delay(3, TimeUnit.SECONDS)
+    }
+
 }
 
 data class User(val id: String, val name: String)

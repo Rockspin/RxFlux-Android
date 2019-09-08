@@ -111,7 +111,7 @@ class EffectStore<E : Effect>(effectMapper: EffectMapper<E>) {
                 } else {
                     Observable.just(effect)
                 }
-            }.replayingShare()
+            }
 
 }
 
@@ -121,9 +121,23 @@ class EffectStore<E : Effect>(effectMapper: EffectMapper<E>) {
 interface FluxView<T : Event, U : State, E : Effect> {
     val events: Observable<T>
 
+    /**
+     * View should redraw its self to represent the new [viewState].
+     * @param viewState representation of the views current state.
+     */
     fun stateChanged(viewState: U)
+
+    /**
+     * View should handle [effect].
+     * @param effect [Effect] to handle
+     */
     fun receivedEffect(effect: E)
-    fun receivedNavigation(effect: Navigation)
+
+    /**
+     * View should handle [navigation].
+     * @param navigation [Navigation] to handle
+     */
+    fun receivedNavigation(navigation: Navigation)
 }
 
 
@@ -156,6 +170,8 @@ fun <VS: State> Reducer<VS>.toStore(initialState: Single<VS>): Store<VS> =
 fun <VS: State> Reducer<VS>.toStore(initialState: VS): Store<VS> =
     BasicStore(this, Single.just(initialState))
 
+fun <E: Effect> EffectMapper<E>.toStore(): EffectStore<E> =
+    EffectStore(this)
 
 fun <VS : State> combineReducers(vararg reducers: Reducer<VS>): Reducer<VS> =
     object : Reducer<VS> {
