@@ -1,6 +1,13 @@
 # RxFlux
 Flux framework for Kotlin/android
 
+# Gradle Dependencies
+
+```
+   implementation 'com.rockspin.rxflux:rxflux-android:0.0.3'
+   implementation 'com.rockspin.rxflux:rxflux-core:0.0.3'
+```
+
 # What is RxFlux?
 
 An opinionated, restrictive framework For Building iOS and Android Apps. 
