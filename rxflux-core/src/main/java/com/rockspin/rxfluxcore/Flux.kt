@@ -6,7 +6,8 @@ import io.reactivex.*
 import io.reactivex.rxkotlin.merge
 
 /**
- * Current state of an object. for example the state of a view or the state of a hardware device.
+ * Current state of an object. for example the state of a view or the state of a hardware device,
+ * or the entire state of an application.
  */
 interface State
 
@@ -16,11 +17,13 @@ interface State
 interface Result
 
 /**
- * An [Event] creates one or more [Result]s when then are used to update [State].
+ * An [Event] represents a UiEvent that a FluxView can generate.
  * For example:
  * - pressing a button create a button pressed event.
  * - the Button Pressed Event would create a Update Label Result.
  * - the Update Label Result would modify the LabelViewState.
+ *
+ * These generally are fed into a [ResultCreator] which creates one or more [Result]s when then are used to update [State].
  */
 interface Event
 
@@ -51,7 +54,7 @@ interface ResultCreator<T : Event> {
 
 /**
  * Reducers specify how the application's state changes in response to [Result]s sent to the [Dispatcher].
- * Remember that [Result]s only describe what happened, but don't describe how the application's state changes.
+ * Remember that [Result]   s only describe what happened, but don't describe how the application's state changes.
  */
 interface Reducer<VS : State> {
 

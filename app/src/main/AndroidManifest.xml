@@ -12,12 +12,12 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.LoggedInActivity"
-            android:parentActivityName=".ui.MainActivity">
+            android:parentActivityName=".ui.LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.rockspin.flux.ui.MainActivity" />
+                android:value="com.rockspin.flux.ui.LoginActivity" />
         </activity>
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
