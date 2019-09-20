@@ -3,6 +3,7 @@ package com.rockspin.flux
 import android.app.Application
 import com.rockspin.flux.service.serviceModule
 import com.rockspin.flux.ui.mainActivityModule
+import com.rockspin.flux.ui.success.successModule
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
@@ -15,7 +16,8 @@ class App : Application() {
             modules(
                 listOf(
                     mainActivityModule,
-                    serviceModule
+                    serviceModule,
+                    successModule
                 )
             )
         }
