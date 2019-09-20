@@ -17,6 +17,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.rockspin.flux.ui.LoginActivity" />
         </activity>
+        <activity android:name=".ui.success.SuccessActivity" />
         <activity android:name=".ui.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
