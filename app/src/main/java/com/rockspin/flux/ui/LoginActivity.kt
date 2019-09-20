@@ -5,6 +5,7 @@ import androidx.core.view.isInvisible
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import com.rockspin.flux.R
+import com.rockspin.flux.ui.success.SuccessActivity
 import com.rockspin.rxfluxandroid.FluxActivity
 import com.rockspin.rxfluxandroid.rxSetText
 import io.reactivex.Observable
@@ -18,7 +19,7 @@ class LoginActivity : FluxActivity<LoginEvents, LoginState, LoginEffects>() {
 
     override val fluxViewModel: LoginFlux by viewModel()
 
-    override val events: Observable<LoginEvents> by lazy {
+    override fun events(): Observable<LoginEvents> {
         // Emit LoginClicked event on click
         val onLoginClick = signInButton.clicks().map {
             LoginEvents.LoginClicked(
@@ -43,7 +44,7 @@ class LoginActivity : FluxActivity<LoginEvents, LoginState, LoginEffects>() {
             .map { LoginEvents.PasswordChanged(it.toString()) }
 
         // merge all events in to single observable
-        listOf(
+        return listOf(
             onLoginClick,
             onEmailChanged,
             onPasswordChanged
@@ -70,7 +71,7 @@ class LoginActivity : FluxActivity<LoginEvents, LoginState, LoginEffects>() {
 
     override fun receivedEffect(effect: LoginEffects) {
         when (effect) {
-            LoginEffects.OpenLoggedIn -> startActivity(LoggedInActivity.newIntent(this))
+            LoginEffects.OpenLoggedIn -> startActivity(SuccessActivity.newIntent(this))
         }
     }
 

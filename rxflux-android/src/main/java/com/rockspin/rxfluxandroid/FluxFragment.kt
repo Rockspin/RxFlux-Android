@@ -1,6 +1,7 @@
 package com.rockspin.rxfluxandroid
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import com.rockspin.rxfluxcore.*
@@ -43,8 +44,9 @@ abstract class FluxFragment<T : Event, U : State, E : Effect> : Fragment(), Flux
     fun createAndDispatchResults(untilEvent: Lifecycle.Event? = null): Disposable {
         val resultCreator = fluxViewModel.resultCreator
             ?: throw IllegalStateException("no effect mapper on view model")
-        return resultCreator.dispatchResults(events).observeOn(observerOn)
-            .autoDisposable(this, untilEvent).subscribe()
+        return resultCreator.dispatchResults(events()).observeOn(observerOn)
+            .autoDisposable(this, untilEvent)
+            .subscribe()
     }
 
     /**
@@ -56,7 +58,8 @@ abstract class FluxFragment<T : Event, U : State, E : Effect> : Fragment(), Flux
      * @param untilEvent Optional lifecycle event when subscription will be disposed.
      */
     fun listenForStateUpdates(untilEvent: Lifecycle.Event? = null): Disposable =
-        fluxViewModel.store.updates.observeOn(observerOn).autoDisposable(
+        fluxViewModel.store.updates.observeOn(observerOn)
+            .autoDisposable(
             this,
             untilEvent
         ).subscribe(this::stateChanged)
@@ -72,7 +75,8 @@ abstract class FluxFragment<T : Event, U : State, E : Effect> : Fragment(), Flux
     fun listenForEffectUpdates(untilEvent: Lifecycle.Event? = null): Disposable {
         val effectMapper = fluxViewModel.effectStore
             ?: throw IllegalStateException("no effect mapper on view model")
-        return effectMapper.updates.observeOn(observerOn).autoDisposable(this, untilEvent)
+        return effectMapper.updates.observeOn(observerOn)
+            .autoDisposable(this, untilEvent)
             .subscribe(this::receivedEffect)
     }
 }

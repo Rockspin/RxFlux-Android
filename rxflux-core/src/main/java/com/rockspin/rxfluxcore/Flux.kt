@@ -122,7 +122,7 @@ class EffectStore<E : Effect>(effectMapper: EffectMapper<E>) {
  * Data from stores is displayed in views. Then when the store emits a change the view can get the new data and re-render.
  */
 interface FluxView<T : Event, U : State, E : Effect> {
-    val events: Observable<T>
+    fun events(): Observable<T>
 
     /**
      * View should redraw its self to represent the new [viewState].

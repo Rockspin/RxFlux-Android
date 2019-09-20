@@ -47,7 +47,7 @@ abstract class FluxActivity<T : Event, U : State, E : Effect> : AppCompatActivit
     fun createAndDispatchResults(untilEvent: Lifecycle.Event? = null): Disposable {
         val resultCreator = fluxViewModel.resultCreator
             ?: throw IllegalStateException("no effect mapper on view model")
-        return resultCreator.dispatchResults(events).observeOn(observerOn)
+        return resultCreator.dispatchResults(events()).observeOn(observerOn)
             .autoDisposable(this, untilEvent).subscribe()
     }
 
