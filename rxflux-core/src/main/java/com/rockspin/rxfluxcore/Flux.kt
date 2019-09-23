@@ -90,7 +90,7 @@ object Dispatcher {
  */
 abstract class Store<VS : State>(
     val reducer: Reducer<VS>,
-    val initialState: Single<VS>
+     initialState: Single<VS>
 ) {
 
 
@@ -109,6 +109,9 @@ abstract class Store<VS : State>(
         }
         .distinctUntilChanged()
         .replayingShare()
+        .doOnNext { sideEffect(it) }
+
+     open fun sideEffect(it: VS) {}
 }
 
 /**
