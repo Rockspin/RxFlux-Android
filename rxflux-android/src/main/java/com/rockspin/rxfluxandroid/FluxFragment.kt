@@ -23,8 +23,8 @@ abstract class FluxFragment<T : Event, U : State, E : Effect> : Fragment(), Flux
 
     override fun onResume() {
         super.onResume()
-        createAndDispatchResults(Lifecycle.Event.ON_PAUSE)
         listenForEffectUpdates(Lifecycle.Event.ON_PAUSE)
+        createAndDispatchResults(Lifecycle.Event.ON_PAUSE)
     }
 
     override fun receivedEffect(effect: E) {}
