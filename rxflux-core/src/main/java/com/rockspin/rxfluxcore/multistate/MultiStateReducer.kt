@@ -1,8 +1,7 @@
 package com.rockspin.rxfluxcore.multistate
 
-import com.rockspin.rxfluxcore.Reducer
-import com.rockspin.rxfluxcore.Result
-import com.rockspin.rxfluxcore.State
+import com.rockspin.rxfluxcore.*
+import io.reactivex.Single
 
 /**
  * A class that manages a state of
@@ -38,3 +37,7 @@ class MultiStateReducer<VS: State>(
     }
 
 }
+
+fun <VS : State> Reducer<VS>.toMultiStateReducer(
+    keySelector: (result: Result) -> String?): MultiStateReducer<VS> =
+    MultiStateReducer(keySelector, this)

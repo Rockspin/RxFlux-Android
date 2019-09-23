@@ -88,15 +88,27 @@ object Dispatcher {
  * A [Store] only caches view state when someone is subscribed to the observable returned from [updates]
  *
  */
-interface Store<VS: State>{
-    val reducer: Reducer<VS>
+abstract class Store<VS : State>(
+    val reducer: Reducer<VS>,
     val initialState: Single<VS>
+) {
+
 
     /**
      * emits updates to the store, should cache the result between subscriptions.
      * (see [com.jakewharton.rx.ReplayingShare])
      */
-    val updates: Observable<VS>
+    val updates: Observable<VS> = initialState
+        .flatMapObservable { state ->
+            Dispatcher.results.scan(state) { oldState, result ->
+                reducer.reduceToState(
+                    oldState,
+                    result
+                )
+            }
+        }
+        .distinctUntilChanged()
+        .replayingShare()
 }
 
 /**
@@ -148,32 +160,18 @@ interface FluxView<T : Event, U : State, E : Effect> {
  * A basic Store that can be used in most cases.
  */
 class BasicStore<VS : State>(
-    override val reducer: Reducer<VS>,
-    override val initialState: Single<VS>
-): Store<VS> {
-
-    override val updates: Observable<VS> = initialState
-        .flatMapObservable { state ->
-            Dispatcher.results.scan(state) { oldState, result ->
-                reducer.reduceToState(
-                    oldState,
-                    result
-                )
-            }
-        }
-        .distinctUntilChanged()
-        .replayingShare()
-
-}
+    reducer: Reducer<VS>,
+    initialState: Single<VS>
+) : Store<VS>(reducer, initialState)
 
 
-fun <VS: State> Reducer<VS>.toStore(initialState: Single<VS>): Store<VS> =
+fun <VS : State> Reducer<VS>.toStore(initialState: Single<VS>): Store<VS> =
     BasicStore(this, initialState)
 
-fun <VS: State> Reducer<VS>.toStore(initialState: VS): Store<VS> =
+fun <VS : State> Reducer<VS>.toStore(initialState: VS): Store<VS> =
     BasicStore(this, Single.just(initialState))
 
-fun <E: Effect> EffectMapper<E>.toStore(): EffectStore<E> =
+fun <E : Effect> EffectMapper<E>.toStore(): EffectStore<E> =
     EffectStore(this)
 
 fun <VS : State> combineReducers(vararg reducers: Reducer<VS>): Reducer<VS> =
