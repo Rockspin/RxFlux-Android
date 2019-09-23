@@ -27,8 +27,9 @@ abstract class FluxActivity<T : Event, U : State, E : Effect> : AppCompatActivit
 
     override fun onResume() {
         super.onResume()
-        createAndDispatchResults(Lifecycle.Event.ON_PAUSE)
         listenForEffectUpdates(Lifecycle.Event.ON_PAUSE)
+        createAndDispatchResults(Lifecycle.Event.ON_PAUSE)
+
     }
 
     override fun receivedEffect(effect: E) {}
