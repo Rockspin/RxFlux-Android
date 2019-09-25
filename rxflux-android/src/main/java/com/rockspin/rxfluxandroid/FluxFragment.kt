@@ -17,12 +17,12 @@ abstract class FluxFragment<T : Event, U : State, E : Effect> : Fragment(), Flux
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // start listening for state changes when the activity is created.
-        listenForStateUpdates()
     }
 
     override fun onResume() {
         super.onResume()
+        // start listening for state changes when the fragment is visible
+        listenForStateUpdates()
         listenForEffectUpdates(Lifecycle.Event.ON_PAUSE)
         createAndDispatchResults(Lifecycle.Event.ON_PAUSE)
     }
