@@ -89,10 +89,12 @@ object Dispatcher {
  *
  */
 abstract class Store<VS : State>(
-    val reducer: Reducer<VS>,
-     initialState: Single<VS>
+    private val reducer: Reducer<VS>,
+    initialState: Single<VS>
 ) {
 
+    var currentViewState: VS? = null
+        private set
 
     /**
      * emits updates to the store, should cache the result between subscriptions.
@@ -108,6 +110,7 @@ abstract class Store<VS : State>(
             }
         }
         .distinctUntilChanged()
+        .doOnNext { currentViewState = it }
         .replayingShare()
         .doOnNext { sideEffect(it) }
 
