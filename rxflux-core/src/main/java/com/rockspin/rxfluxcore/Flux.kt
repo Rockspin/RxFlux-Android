@@ -120,7 +120,7 @@ abstract class Store<VS : State>(
 /**
  * An effect store emits.
  */
-class EffectStore<E : Effect>(effectMapper: EffectMapper<E>) {
+abstract class EffectStore<E : Effect>(effectMapper: EffectMapper<E>) {
 
     val updates: Observable<E> =
         Dispatcher
@@ -171,6 +171,10 @@ class BasicStore<VS : State>(
 ) : Store<VS>(reducer, initialState)
 
 
+class BasicEffectStore<E : Effect>(
+    effectMapper: EffectMapper<E>
+) : EffectStore<E>(effectMapper)
+
 fun <VS : State> Reducer<VS>.toStore(initialState: Single<VS>): Store<VS> =
     BasicStore(this, initialState)
 
@@ -178,7 +182,7 @@ fun <VS : State> Reducer<VS>.toStore(initialState: VS): Store<VS> =
     BasicStore(this, Single.just(initialState))
 
 fun <E : Effect> EffectMapper<E>.toStore(): EffectStore<E> =
-    EffectStore(this)
+    BasicEffectStore(this)
 
 fun <VS : State> combineReducers(vararg reducers: Reducer<VS>): Reducer<VS> =
     object : Reducer<VS> {
