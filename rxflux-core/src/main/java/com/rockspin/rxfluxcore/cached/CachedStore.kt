@@ -1,5 +1,6 @@
 package com.rockspin.rxfluxcore.cached
 
+import com.rockspin.rxfluxcore.BasicStore
 import com.rockspin.rxfluxcore.Reducer
 import com.rockspin.rxfluxcore.State
 import com.rockspin.rxfluxcore.Store
@@ -14,8 +15,8 @@ import io.reactivex.Single
  */
 class CachedStore<VS : State>(
     reducer: Reducer<VS>,
-    val viewStateCache: ViewStateCache<VS>
-) : Store<VS>(reducer, Single.fromCallable {
+    private val viewStateCache: ViewStateCache<VS>
+) : BasicStore<VS>(reducer, Single.fromCallable {
     viewStateCache.loadViewState()
 }) {
 

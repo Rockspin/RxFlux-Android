@@ -24,7 +24,7 @@ abstract class FluxFragment<T : Event, U : State, E : Effect> : Fragment(), Flux
         // start listening for state changes when the fragment is visible
         listenForStateUpdates()
         listenForEffectUpdates(Lifecycle.Event.ON_PAUSE)
-        createAndDispatchResults(Lifecycle.Event.ON_PAUSE)
+        createAndDispatchResults(Lifecycle.Event.ON_DESTROY)
     }
 
     override fun receivedEffect(effect: E) {}
