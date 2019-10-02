@@ -3,6 +3,7 @@ package com.rockspin.rxfluxcore
 import com.jakewharton.rx.replayingShare
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.*
+import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.merge
 
 /**
@@ -46,10 +47,9 @@ interface ResultCreator<T : Event> {
 
     fun createResults(events: Observable<T>): Observable<Result>
 
-    fun dispatchResults(events: Observable<T>): Completable =
+    fun dispatchResults(events: Observable<T>): Observable<Result> =
         events.publish(this::createResults)
             .doOnNext { Dispatcher.dispatch(it) }
-            .ignoreElements()
 }
 
 /**
@@ -59,6 +59,19 @@ interface ResultCreator<T : Event> {
 interface Reducer<VS : State> {
 
     fun reduceToState(oldState: VS, result: Result): VS
+}
+
+/**
+ * A [Store] is what holds the data of an application. A stores register with the [Dispatcher] so that they can receive
+ * [Result]s .The data in a store must only be mutated by responding to an [Result].
+ *
+ * A [Store] only caches view state when someone is subscribed to the observable returned from [updates]
+ *
+ */
+interface Store<VS : State> {
+    fun currentViewState(): VS?
+
+    val updates: Observable<VS>
 }
 
 /**
@@ -81,6 +94,7 @@ object Dispatcher {
     fun dispatch(result: Result) = resultsRelay.accept(result)
 }
 
+
 /**
  * A [Store] is what holds the data of an application. A stores register with the [Dispatcher] so that they can receive
  * [Result]s .The data in a store must only be mutated by responding to an [Result].
@@ -88,19 +102,20 @@ object Dispatcher {
  * A [Store] only caches view state when someone is subscribed to the observable returned from [updates]
  *
  */
-abstract class Store<VS : State>(
+open class BasicStore<VS : State>(
     private val reducer: Reducer<VS>,
     initialState: Single<VS>
-) {
+) : Store<VS> {
 
-    var currentViewState: VS? = null
-        private set
+    private var currentViewState: VS? = null
+
+    override fun currentViewState(): VS? = currentViewState
 
     /**
      * emits updates to the store, should cache the result between subscriptions.
      * (see [com.jakewharton.rx.ReplayingShare])
      */
-    val updates: Observable<VS> = initialState
+    override val updates: Observable<VS> = initialState
         .flatMapObservable { state ->
             Dispatcher.results.scan(state) { oldState, result ->
                 reducer.reduceToState(
@@ -111,10 +126,11 @@ abstract class Store<VS : State>(
         }
         .distinctUntilChanged()
         .doOnNext { currentViewState = it }
-        .replayingShare()
         .doOnNext { sideEffect(it) }
+        .replayingShare()
 
-     open fun sideEffect(it: VS) {}
+
+    open fun sideEffect(it: VS) {}
 }
 
 /**
@@ -165,10 +181,6 @@ interface FluxView<T : Event, U : State, E : Effect> {
 /**
  * A basic Store that can be used in most cases.
  */
-class BasicStore<VS : State>(
-    reducer: Reducer<VS>,
-    initialState: Single<VS>
-) : Store<VS>(reducer, initialState)
 
 
 class BasicEffectStore<E : Effect>(
@@ -198,3 +210,30 @@ fun <T : Event> combineActionCreators(vararg resultCreators: ResultCreator<T>): 
             resultCreators.map { it.createResults(events) }.toList().merge()
     }
 }
+
+/**
+ * Utility for combining stores into one object
+ */
+fun <VS : State, VS1 : State> Store<VS>.withStore(
+    store: Store<VS1>,
+    mapper: BiFunction<VS, VS1, VS>
+): Store<VS> {
+
+    return object : Store<VS> {
+        private var currentViewState: VS? = null
+
+        override val updates: Observable<VS>
+            get() =
+                Observable.combineLatest(
+                    this@withStore.updates,
+                    store.updates,
+                    mapper
+                ).doOnNext { currentViewState = it }
+                    .replayingShare()
+
+        override fun currentViewState(): VS? = currentViewState
+
+    }
+
+}
+

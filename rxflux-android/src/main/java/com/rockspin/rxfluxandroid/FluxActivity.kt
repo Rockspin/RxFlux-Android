@@ -28,7 +28,7 @@ abstract class FluxActivity<T : Event, U : State, E : Effect> : AppCompatActivit
     override fun onResume() {
         super.onResume()
         listenForEffectUpdates(Lifecycle.Event.ON_PAUSE)
-        createAndDispatchResults(Lifecycle.Event.ON_PAUSE)
+        createAndDispatchResults(Lifecycle.Event.ON_DESTROY)
 
     }
 
@@ -48,8 +48,10 @@ abstract class FluxActivity<T : Event, U : State, E : Effect> : AppCompatActivit
     fun createAndDispatchResults(untilEvent: Lifecycle.Event? = null): Disposable {
         val resultCreator = fluxViewModel.resultCreator
             ?: throw IllegalStateException("no effect mapper on view model")
-        return resultCreator.dispatchResults(events()).observeOn(observerOn)
-            .autoDisposable(this, untilEvent).subscribe()
+        return resultCreator.dispatchResults(events())
+            .observeOn(observerOn)
+            .autoDisposable(this, untilEvent)
+            .subscribe()
     }
 
     /**
