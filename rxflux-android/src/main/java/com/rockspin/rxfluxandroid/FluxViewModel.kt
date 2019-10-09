@@ -1,20 +1,14 @@
 package com.rockspin.rxfluxandroid
 
-import android.app.Activity
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.rockspin.rxfluxcore.*
-import com.rockspin.rxfluxcore.cached.ViewStateCache
-import com.rockspin.rxfluxcore.cached.toCachedStore
-import com.uber.autodispose.AutoDispose
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.uber.autodispose.android.lifecycle.scope
 import com.uber.autodispose.autoDisposable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import java.lang.IllegalStateException
 
 abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
     store: Store<VS>,
@@ -38,6 +32,8 @@ abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
         // survive orientation changes.
         attachStateUpdates()
     }
+
+    val currentState get() = fluxModel.currentState
 
     fun events(lifecycleOwner: LifecycleOwner, events: () -> Observable<T>) {
         fluxModel.createResults(events())

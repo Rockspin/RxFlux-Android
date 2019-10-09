@@ -6,11 +6,12 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 
 open class FluxModel<T : Event, VS : State, E : Effect>(
-    store: Store<VS>,
+    val store: Store<VS>,
     private val resultCreator: ResultCreator<T> = emptyResultCreator(),
     effectMapper: EffectMapper<E> = emptyEffectMapper()
 ) {
 
+    val currentState: VS get() = store.currentViewState()
     val state: Observable<VS> = store.updates.replayingShare()
     val effects: Observable<E> = effectMapper.emitEffects()
 
