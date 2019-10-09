@@ -18,8 +18,8 @@ import org.koin.dsl.module
 
 class LoginFlux(reducer: MainReducer, effectMapper: LoginEffectMapper, resultCreator: LoginResultCreator) :
     FluxViewModel<LoginEvents, LoginState, LoginEffects>(
-        reducer,
         LoginState(),
+        reducer,
         effectMapper,
         resultCreator
     )
@@ -103,7 +103,7 @@ class MainReducer : Reducer<LoginState> {
 }
 
 
-class LoginEffectMapper : EffectMapper<LoginEffects> {
+class LoginEffectMapper : SimpleEffectMapper<LoginEffects> {
 
     override fun mapToEffect(result: Result): LoginEffects? {
         return when(result) {

@@ -12,12 +12,10 @@ class Fragment2 : Fragment() {
 
     val sensorViewModel: Fragment2ViewModel  by viewModel()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_setup_sensor, container, false).apply {
-
-
-            }
-
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? =
+        inflater.inflate(R.layout.fragment_setup_sensor, container, false)
 
 }

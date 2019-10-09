@@ -5,7 +5,6 @@ import com.rockspin.rxfluxcore.*
 
 sealed class Fragment1Events : Event {
     object clickedOpen : Fragment1Events(), Result
-    object empty : Fragment1Events(), Result
 }
 
 data class Fragment1State(val loading: Boolean = false) : State
