@@ -13,7 +13,7 @@ import io.reactivex.functions.BiFunction
  *
  */
 interface Store<VS : State> {
-    fun currentViewState(): VS?
+    fun currentViewState(): VS
 
     val updates: Observable<VS>
 }
@@ -27,12 +27,12 @@ interface Store<VS : State> {
  */
 open class BasicStore<VS : State>(
     private val reducer: Reducer<VS>,
-    initialState: Single<VS>
+    private val initialState: Single<VS>
 ) : Store<VS> {
 
-    private var currentViewState: VS? = null
+    private lateinit var currentViewState: VS
 
-    override fun currentViewState(): VS? = currentViewState
+    override fun currentViewState(): VS = currentViewState
 
     /**
      * emits updates to the store, should cache the result between subscriptions.
@@ -71,7 +71,7 @@ fun <VS : State, VS1 : State> Store<VS>.withStore(
 ): Store<VS> {
 
     return object : Store<VS> {
-        private var currentViewState: VS? = null
+        private lateinit var currentViewState: VS
 
         override val updates: Observable<VS>
             get() =
@@ -82,7 +82,7 @@ fun <VS : State, VS1 : State> Store<VS>.withStore(
                 ).doOnNext { currentViewState = it }
                     .replayingShare()
 
-        override fun currentViewState(): VS? = currentViewState
+        override fun currentViewState(): VS = currentViewState
 
     }
 }
