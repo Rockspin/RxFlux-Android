@@ -1,38 +1,36 @@
 package com.rockspin.rxfluxandroid
 
+import android.app.Activity
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import com.rockspin.rxfluxcore.*
 import com.rockspin.rxfluxcore.cached.ViewStateCache
 import com.rockspin.rxfluxcore.cached.toCachedStore
 import com.uber.autodispose.AutoDispose
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+import com.uber.autodispose.android.lifecycle.scope
+import com.uber.autodispose.autoDisposable
+import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import java.lang.IllegalStateException
 
 abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
-    val store: Store<VS>,
-    val effectStore: EffectStore<E>? = null,
-    val resultCreator: ResultCreator<T>? = null
+    store: Store<VS>,
+    effectMapper: EffectMapper<E> = emptyEffectMapper(),
+    resultCreator: ResultCreator<T> = emptyResultCreator()
 ) : AutoDisposeViewModel() {
 
     constructor(
-        reducer: Reducer<VS>,
         initialState: VS,
-        effectMapper: EffectMapper<E>? = null,
-        resultCreator: ResultCreator<T>? = null
-    ) : this(reducer.toStore(Single.just(initialState)), effectMapper?.toStore(), resultCreator)
+        reducer: Reducer<VS> = emptyReducer(),
+        effectMapper: EffectMapper<E> = emptyEffectMapper(),
+        resultCreator: ResultCreator<T> = emptyResultCreator()
+    ) : this(reducer.toStore(Single.just(initialState)), effectMapper, resultCreator)
 
-    constructor(
-        reducer: Reducer<VS>,
-        initialState: Single<VS>,
-        effectMapper: EffectMapper<E>? = null,
-        resultCreator: ResultCreator<T>? = null
-    ) : this(reducer.toStore(initialState), effectMapper?.toStore(), resultCreator)
+    private val fluxModel = FluxModel(store, resultCreator, effectMapper)
 
-    constructor(
-        reducer: Reducer<VS>,
-        viewStateCache: ViewStateCache<VS>,
-        effectMapper: EffectMapper<E>? = null,
-        resultCreator: ResultCreator<T>? = null
-    ) : this(reducer.toCachedStore(viewStateCache), effectMapper?.toStore(), resultCreator)
 
     init {
         // subscribe to store updates on creation, because the
@@ -40,6 +38,23 @@ abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
         // survive orientation changes.
         attachStateUpdates()
     }
+
+    fun events(lifecycleOwner: LifecycleOwner, events: () -> Observable<T>) {
+        fluxModel.createResults(events())
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoDisposable(lifecycleOwner.scope()).subscribe()
+    }
+
+    fun state(lifecycleOwner: LifecycleOwner, state: (VS) -> Unit): Disposable =
+        fluxModel.state
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoDisposable(lifecycleOwner.scope()).subscribe { state(it) }
+
+    fun effects(lifecycleOwner: LifecycleOwner, effects: (E) -> Unit) =
+        fluxModel.effects
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoDisposable(lifecycleOwner.scope())
+            .subscribe { effects(it) }
 
     /**
      * Register this [FluxViewModel] to the stores updates.
@@ -50,7 +65,7 @@ abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
      * The subscription is automatically disposed when the activity this [FluxViewModel] is attached to
      * is destroyed.
      */
-    private fun attachStateUpdates(): Disposable =
-        store.updates.`as`(AutoDispose.autoDisposable<VS>(this)).subscribe()
+    private fun attachStateUpdates(): Disposable = fluxModel.state.autoDisposable(this).subscribe()
+
 
 }

@@ -14,7 +14,6 @@ class SuccessActivity : AppCompatActivity() {
         setContentView(R.layout.activity_success)
        // setSupportActionBar(toolbar)
 
-
         val navController = findNavController(R.id.nav_host_fragment)
     }
 

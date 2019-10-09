@@ -21,5 +21,5 @@ data class LoginState(
 ) : State
 
 sealed class LoginEffects : Effect {
-    object OpenLoggedIn: LoginEffects(), Navigation
+    object OpenLoggedIn: LoginEffects()
 }
