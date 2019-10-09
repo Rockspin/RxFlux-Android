@@ -33,10 +33,12 @@ abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
         attachStateUpdates()
     }
 
-    fun events(lifecycleOwner: LifecycleOwner, untilEvent: Lifecycle.Event = Lifecycle.Event.ON_PAUSE,  events: () -> Observable<T>) {
+    val currentState get() = fluxModel.currentState
+
+    fun events(lifecycleOwner: LifecycleOwner, events: () -> Observable<T>) {
         fluxModel.createResults(events())
             .observeOn(AndroidSchedulers.mainThread())
-            .autoDisposable(lifecycleOwner.scope(untilEvent = untilEvent)).subscribe()
+            .autoDisposable(lifecycleOwner.scope()).subscribe()
     }
 
     fun state(lifecycleOwner: LifecycleOwner, state: (VS) -> Unit): Disposable =
@@ -44,10 +46,10 @@ abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
             .observeOn(AndroidSchedulers.mainThread())
             .autoDisposable(lifecycleOwner.scope()).subscribe { state(it) }
 
-    fun effects(lifecycleOwner: LifecycleOwner, untilEvent: Lifecycle.Event = Lifecycle.Event.ON_PAUSE, effects: (E) -> Unit) =
+    fun effects(lifecycleOwner: LifecycleOwner, effects: (E) -> Unit) =
         fluxModel.effects
             .observeOn(AndroidSchedulers.mainThread())
-            .autoDisposable(lifecycleOwner.scope( untilEvent = untilEvent))
+            .autoDisposable(lifecycleOwner.scope())
             .subscribe { effects(it) }
 
     /**
