@@ -15,8 +15,7 @@ import io.reactivex.functions.BiFunction
 interface Store<VS : State> {
     fun currentViewState(): VS?
 
-    val
-            updates: Observable<VS>
+    val updates: Observable<VS>
 }
 
 /**
