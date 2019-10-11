@@ -12,7 +12,13 @@ object Dispatcher {
     private val resultsRelay =
         PublishRelay.create<Result>()
 
-    val results: Observable<Result> = resultsRelay.hide()
+    val results: Observable<Result> = resultsRelay.hide().doOnNext {
+        Flux.resultDispatched(it)
+    }.share()
 
-    fun dispatch(result: Result) = resultsRelay.accept(result)
+
+    fun dispatch(result: Result) {
+        resultsRelay.accept(result)
+    }
+
 }

@@ -11,6 +11,12 @@ interface ResultCreator<T : Event> {
 
     fun createResults(events: Observable<T>): Observable<Result>
 
+    fun dispatcheResults(events: Observable<T>): Observable<Result> =
+        events.doOnSubscribe {
+            Flux.resultCreatorSubscribed(this)
+                }
+            .publish(this::createResults)
+            .doOnNext { Dispatcher.dispatch(it) }
 }
 
 

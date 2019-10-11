@@ -33,8 +33,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.core:core-ktx:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     // dependant projects
@@ -47,18 +47,18 @@ dependencies {
     implementation 'org.koin:koin-android-viewmodel:2.0.1'
 
     // RxJava
-    def rxJavaVersion = '2.2.12'
+    def rxJavaVersion = '2.2.13'
     def rxKotlinVersion = '2.4.0'
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     implementation "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
-    implementation 'com.jakewharton.rx2:replaying-share-kotlin:2.1.1'
+    implementation 'com.jakewharton.rx2:replaying-share-kotlin:2.2.0'
     implementation 'com.jakewharton.rxbinding3:rxbinding:3.0.0'
 
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     // Auto dispose
-    def autoDisposeVersion = '1.3.0'
+    def autoDisposeVersion = '1.4.0'
     implementation "com.uber.autodispose:autodispose:$autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android:$autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$autoDisposeVersion"

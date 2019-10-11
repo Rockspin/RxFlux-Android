@@ -29,6 +29,35 @@ interface Event
 interface Effect
 
 
+object Flux {
+    var DEBUG: Boolean = false
+    var logger : FluxDebugger? = null
 
+    fun resultCreatorSubscribed(resultCreator: ResultCreator<*>){
+        logger?.resultCreatorSubscribed(resultCreator)
+    }
 
+    fun resultDispatched(event: Result){
+        logger?.resultDispatched(event)
+    }
 
+    fun storeInitialized(store: Store<*>, state: State){
+        logger?.storeInitialized(store, state)
+    }
+
+    fun storeUpdated(store: Store<*>, it: State) {
+        logger?.storeUpdated(store, it)
+    }
+
+}
+
+interface FluxDebugger {
+
+    fun resultCreatorSubscribed(resultCreator: ResultCreator<*>)
+
+    fun resultDispatched(result: Result)
+
+    fun storeInitialized(store: Store<*>, state: State)
+
+    fun storeUpdated(store: Store<*>, it: State)
+}

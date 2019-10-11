@@ -14,6 +14,7 @@ import io.reactivex.rxkotlin.merge
 import io.reactivex.rxkotlin.ofType
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import timber.log.Timber
 
 
 class LoginFlux(reducer: MainReducer, effectMapper: LoginEffectMapper, resultCreator: LoginResultCreator) :
@@ -59,7 +60,9 @@ class LoginResultCreator(private val userDataFetcher: UserDataFetcher) : ResultC
             isEmailValid,
             canLogin,
             loginUser
-        ).merge()
+        ).merge().doOnNext {
+            Timber.d("creating Result: $it")
+        }
     }
 }
 

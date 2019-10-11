@@ -1,20 +1,19 @@
 package com.rockspin.rxfluxandroid
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.rockspin.rxfluxcore.*
 import com.uber.autodispose.android.lifecycle.scope
-import com.uber.autodispose.autoDisposable
+import com.uber.autodispose.autoDispose
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 
 abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
-    store: Store<VS>,
+    private val store: Store<VS>,
     effectMapper: EffectMapper<E> = emptyEffectMapper(),
-    resultCreator: ResultCreator<T> = emptyResultCreator()
-) : AutoDisposeViewModel() {
+    private val resultCreator: ResultCreator<T> = emptyResultCreator()
+) : AutoDisposeViewModel(), FluxModel<T, VS,E > {
 
     constructor(
         initialState: VS,
@@ -23,7 +22,16 @@ abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
         resultCreator: ResultCreator<T> = emptyResultCreator()
     ) : this(reducer.toStore(Single.just(initialState)), effectMapper, resultCreator)
 
-    private val fluxModel = FluxModel(store, resultCreator, effectMapper)
+    override fun currentState(): VS = store.currentViewState
+
+    override val onStateUpdated: Observable<VS> = store.updates
+
+    override val onEffect : Observable<E> = effectMapper.emitEffects()
+
+    /**
+     * @return an observable which when subscribed to Dispatches results from our [resultCreator] to the dispatcher.
+     */
+    fun createResults(events: Observable<T>): Observable<Result> = resultCreator.dispatcheResults(events)
 
 
     init {
@@ -32,25 +40,6 @@ abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
         // survive orientation changes.
         attachStateUpdates()
     }
-
-    val currentState get() = fluxModel.currentState
-
-    fun events(lifecycleOwner: LifecycleOwner, events: () -> Observable<T>) {
-        fluxModel.createResults(events())
-            .observeOn(AndroidSchedulers.mainThread())
-            .autoDisposable(lifecycleOwner.scope()).subscribe()
-    }
-
-    fun state(lifecycleOwner: LifecycleOwner, state: (VS) -> Unit): Disposable =
-        fluxModel.state
-            .observeOn(AndroidSchedulers.mainThread())
-            .autoDisposable(lifecycleOwner.scope()).subscribe { state(it) }
-
-    fun effects(lifecycleOwner: LifecycleOwner, effects: (E) -> Unit) =
-        fluxModel.effects
-            .observeOn(AndroidSchedulers.mainThread())
-            .autoDisposable(lifecycleOwner.scope())
-            .subscribe { effects(it) }
 
     /**
      * Register this [FluxViewModel] to the stores updates.
@@ -61,7 +50,23 @@ abstract class FluxViewModel<T : Event, VS : State, E : Effect>(
      * The subscription is automatically disposed when the activity this [FluxViewModel] is attached to
      * is destroyed.
      */
-    private fun attachStateUpdates(): Disposable = fluxModel.state.autoDisposable(this).subscribe()
+    private fun attachStateUpdates(): Disposable =  onStateUpdated.autoDispose(this).subscribe()
 
+    fun events(lifecycleOwner: LifecycleOwner, events: () -> Observable<T>) {
+        createResults(events())
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoDispose(lifecycleOwner.scope()).subscribe()
+    }
+
+    fun state(lifecycleOwner: LifecycleOwner, state: (VS) -> Unit): Disposable =
+        onStateUpdated
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoDispose(lifecycleOwner.scope()).subscribe { state(it) }
+
+    fun effects(lifecycleOwner: LifecycleOwner, effects: (E) -> Unit) =
+        onEffect
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoDispose(lifecycleOwner.scope())
+            .subscribe { effects(it) }
 
 }

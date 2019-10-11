@@ -1,6 +1,5 @@
 package com.rockspin.rxfluxcore.cached
 
-import com.rockspin.rxfluxcore.BasicStore
 import com.rockspin.rxfluxcore.Reducer
 import com.rockspin.rxfluxcore.State
 import com.rockspin.rxfluxcore.Store
@@ -14,16 +13,14 @@ import io.reactivex.Single
  * @return an observable that emits each time a [VS] is updated
  */
 class CachedStore<VS : State>(
+    private val viewStateCache: ViewStateCache<VS>,
     reducer: Reducer<VS>,
-    private val viewStateCache: ViewStateCache<VS>
-) : BasicStore<VS>(reducer, Single.fromCallable {
-    viewStateCache.loadViewState()
-}) {
+    initialState: Single<VS>
+) : Store<VS>(reducer, initialState) {
 
     override fun sideEffect(it: VS) {
         viewStateCache.save(it)
     }
-
 
 }
 
@@ -31,6 +28,3 @@ interface ViewStateCache<VS : State> {
     fun save(viewState: VS)
     fun loadViewState(): VS
 }
-
-fun <VS : State> Reducer<VS>.toCachedStore(viewStateCache: ViewStateCache<VS>): Store<VS> =
-    CachedStore(this, viewStateCache)
